@@ -2,28 +2,28 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
-const Movies = ({ isHome = false }) => {
-  const [movies, setMovies] = useState([]);
+const Series = ({ isHome = false }) => {
+  const [series, setSeries] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const fetchMovies = async (page = 1) => {
-    const apiKey = "b3c8574ec4e0950c0501b1bf409be1e0"; // Replace with your API key
-    const apiUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&page=${page}`;
-    
+  const fetchSeries = async (page = 1) => {
+    const apiKey = "b3c8574ec4e0950c0501b1bf409be1e0"; // Replace with your TMDb API key
+    const apiUrl = `https://api.themoviedb.org/3/tv/popular?api_key=${apiKey}&page=${page}`;
+
     try {
       const res = await fetch(apiUrl);
       const data = await res.json();
       console.log("Fetched data: ", data);
 
-      const filteredMovies = data.results
+      const filteredSeries = data.results
         .filter(
-          (movie) =>
-            movie.release_date && movie.release_date.startsWith("2024")
+          (show) =>
+            show.first_air_date && show.first_air_date.startsWith("2024")
         )
-        .sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
+        .sort((a, b) => new Date(b.first_air_date) - new Date(a.first_air_date));
 
-      setMovies(isHome ? filteredMovies.slice(0, 8) : filteredMovies);
+      setSeries(isHome ? filteredSeries.slice(0, 8) : filteredSeries);
       setTotalPages(data.total_pages);
       setCurrentPage(page);
     } catch (error) {
@@ -32,7 +32,7 @@ const Movies = ({ isHome = false }) => {
   };
 
   useEffect(() => {
-    fetchMovies(currentPage);
+    fetchSeries(currentPage);
   }, [currentPage, isHome]);
 
   const handlePageChange = (newPage) => {
@@ -45,21 +45,21 @@ const Movies = ({ isHome = false }) => {
     <div className="flex justify-center mt-20 flex-col px-10">
       {isHome ? (
         <h1 className="uppercase text-3xl font-bold mb-10 text-center">
-          Latest Movies
+          Latest Series
         </h1>
       ) : (
         <h1 className="uppercase text-3xl font-bold mb-10 text-center">
-          List Of All Movies
+          List Of All Series
         </h1>
       )}
       <div className="flex justify-center">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
-          {movies.map((movie) => (
-            <div key={movie.id}>
-              <Link to={`/movies/${movie.id}`}>
+          {series.map((show) => (
+            <div key={show.id}>
+              <Link to={`/series/${show.id}`}>
                 <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  alt={movie.title}
+                  src={`https://image.tmdb.org/t/p/w500${show.poster_path}`}
+                  alt={show.name}
                   className="w-[250px] h-[300px] object-cover shadow-lg"
                 />
               </Link>
@@ -91,7 +91,7 @@ const Movies = ({ isHome = false }) => {
       {isHome && (
         <div className="flex justify-end mt-10 mr-52">
           <Link
-            to="/movies"
+            to="/series"
             className="bg-indigo-500 text-white py-2 px-4 rounded-full hover:bg-indigo-600"
           >
             More
@@ -102,8 +102,8 @@ const Movies = ({ isHome = false }) => {
   );
 };
 
-Movies.propTypes = {
+Series.propTypes = {
   isHome: PropTypes.bool, // Use PropTypes.bool for boolean props
 };
 
-export default Movies;
+export default Series;
